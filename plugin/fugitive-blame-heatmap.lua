@@ -8,3 +8,9 @@ vim.api.nvim_create_user_command(
   {
   }
 )
+vim.api.nvim_create_user_command(
+  "FugitiveBlameHeatmap",
+  require('fugitive-blame-heatmap').get_timestamps_in_blame,
+  {
+  }
+)
