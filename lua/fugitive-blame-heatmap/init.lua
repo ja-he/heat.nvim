@@ -19,5 +19,4 @@ end
 
 return {
   get_timestamps_in_blame = get_timestamps_in_blame,
-  dummy_func = function() print("fugitive-blame-heatmap 😎") end,
 }
