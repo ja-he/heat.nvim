@@ -1,0 +1,10 @@
+*fugitive-blame-heatmap.nvim* highlights your vim-fugitive blame's timestamps
+by age.
+
+Author: Jan Hensel <github.com/ja-he>
+
+QUICKSTART                                      *mediate-quickstart*
+
+WIP / TODO
+
+ vim:tw=78:ts=8:ft=help:norl:
