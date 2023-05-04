@@ -28,6 +28,26 @@ local function to_seconds(timestamp_str)
   return timestamp_seconds
 end
 
+local function unique_sorted_timestamps(results)
+  local unique_timestamps = {}
+  local timestamp_set = {}
+
+  for _, result in ipairs(results) do
+    local timestamp = result.timestamp_seconds
+    if not timestamp_set[timestamp] then
+      timestamp_set[timestamp] = true
+      table.insert(unique_timestamps, { timestamp = timestamp })
+    end
+  end
+
+  local cmp = function(a, b)
+    return a.timestamp < b.timestamp
+  end
+  table.sort(unique_timestamps, cmp)
+
+  return unique_timestamps
+end
+
 local function get_timestamps_in_blame()
 
   local bufnr = vim.api.nvim_get_current_buf()
@@ -45,6 +65,19 @@ local function get_timestamps_in_blame()
         timestamp_seconds = to_seconds(timestamp),
       })
     end
+  end
+
+  local timestamps = unique_sorted_timestamps(results)
+  local oldest = timestamps[1].timestamp
+  local newest = timestamps[#timestamps].timestamp
+  for _, v in ipairs(timestamps) do
+    v.mapped_value = math.floor((v.timestamp - oldest) * (255) / (newest - oldest))
+  end
+
+  print("oldest:", oldest, "maps:", timestamps[1].mapped_value)
+  print("newest:", newest, "maps:", timestamps[#timestamps].mapped_value)
+  for _, v in ipairs(timestamps) do
+    print(v.timestamp, "->", v.mapped_value, "->", string.format("%02x", v.mapped_value))
   end
 
 end
