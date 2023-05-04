@@ -48,7 +48,7 @@ local function unique_sorted_timestamps(results)
   return unique_timestamps
 end
 
-local function get_timestamps_in_blame()
+local function highlight_timestamps()
 
   local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, hl_ns, 0, -1)
@@ -96,5 +96,5 @@ local function get_timestamps_in_blame()
 end
 
 return {
-  get_timestamps_in_blame = get_timestamps_in_blame,
+  highlight_timestamps = highlight_timestamps,
 }

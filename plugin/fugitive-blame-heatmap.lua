@@ -7,12 +7,12 @@ vim.api.nvim_create_autocmd('FileType', {
   group = augroup,
   pattern = 'fugitiveblame',
   callback = function()
-    require('fugitive-blame-heatmap').get_timestamps_in_blame()
+    require('fugitive-blame-heatmap').highlight_timestamps()
   end,
 })
 vim.api.nvim_create_user_command(
   "FugitiveBlameRegenerateHeatmap",
-  require('fugitive-blame-heatmap').get_timestamps_in_blame,
+  require('fugitive-blame-heatmap').highlight_timestamps,
   {
   }
 )
