@@ -59,7 +59,7 @@ local function get_timestamps_in_blame()
     local timestamp_start, timestamp_end, timestamp = line:find("(%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d [+-]%d%d%d%d)")
     if timestamp_start then
       table.insert(results, {
-        line_nr = line_nr,
+        line_nr = line_nr-1,
         timestamp_start = timestamp_start,
         timestamp_end = timestamp_end,
         timestamp_seconds = to_seconds(timestamp),
@@ -70,14 +70,27 @@ local function get_timestamps_in_blame()
   local timestamps = unique_sorted_timestamps(results)
   local oldest = timestamps[1].timestamp
   local newest = timestamps[#timestamps].timestamp
-  for _, v in ipairs(timestamps) do
-    v.mapped_value = math.floor((v.timestamp - oldest) * (255) / (newest - oldest))
+
+  -- build indexable timestamps table
+  -- generate mapped values [0..255]
+  -- create highlight groups
+  local indexable_timestamps = {}
+  for i, v in ipairs(timestamps) do
+    local mapped_value = math.floor((v.timestamp - oldest) * (255) / (newest - oldest))
+    local hlgroup = string.format("fugitiveBlameHeatmap%04x", i)
+    indexable_timestamps[v.timestamp] = {mapped_value = mapped_value, hlgroup = hlgroup}
+    vim.cmd(string.format("highlight %s guifg=#ffffff guibg=#%02x0000", hlgroup, mapped_value))
   end
 
-  print("oldest:", oldest, "maps:", timestamps[1].mapped_value)
-  print("newest:", newest, "maps:", timestamps[#timestamps].mapped_value)
-  for _, v in ipairs(timestamps) do
-    print(v.timestamp, "->", v.mapped_value, "->", string.format("%02x", v.mapped_value))
+  for _, r in ipairs(results) do
+    vim.api.nvim_buf_add_highlight(
+      bufnr,
+      hl_ns,
+      indexable_timestamps[r.timestamp_seconds].hlgroup,
+      r.line_nr,
+      r.timestamp_start-1,
+      r.timestamp_end
+    )
   end
 
 end
