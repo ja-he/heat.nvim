@@ -5,8 +5,10 @@
 
 local hl_ns = vim.api.nvim_create_namespace('fugitive-blame-heatmap')
 
+local timestamp_regex = "(%d%d%d%d)%-(%d%d)%-(%d%d) (%d%d):(%d%d):(%d%d) ([+-]%d%d%d%d)"
+
 local function to_seconds(timestamp_str)
-  local year, month, day, hour, minute, second, timezone = timestamp_str:match("(%d%d%d%d)%-(%d%d)%-(%d%d) (%d%d):(%d%d):(%d%d) ([+-]%d%d%d%d)")
+  local year, month, day, hour, minute, second, timezone = timestamp_str:match(timestamp_regex)
 
   local datetime_tbl = {
     year = tonumber(year),
@@ -28,11 +30,11 @@ local function to_seconds(timestamp_str)
   return timestamp_seconds
 end
 
-local function unique_sorted_timestamps(results)
+local function sort_and_filter_for_unique(timestamps_in_buffer)
   local unique_timestamps = {}
   local timestamp_set = {}
 
-  for _, result in ipairs(results) do
+  for _, result in ipairs(timestamps_in_buffer) do
     local timestamp = result.timestamp_seconds
     if not timestamp_set[timestamp] then
       timestamp_set[timestamp] = true
@@ -48,51 +50,60 @@ local function unique_sorted_timestamps(results)
   return unique_timestamps
 end
 
-local function highlight_timestamps()
-
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_clear_namespace(bufnr, hl_ns, 0, -1)
-  local git_blame_data = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-
+local function find_timestamps(buffer_contents)
   local results = {}
-  for line_nr, line in ipairs(git_blame_data) do
+  for line_nr, line in ipairs(buffer_contents) do
     local timestamp_start, timestamp_end, timestamp = line:find("(%d%d%d%d%-%d%d%-%d%d %d%d:%d%d:%d%d [+-]%d%d%d%d)")
     if timestamp_start then
       table.insert(results, {
-        line_nr = line_nr-1,
-        timestamp_start = timestamp_start,
+        line_nr = line_nr - 1,
+        timestamp_start = timestamp_start-1,
         timestamp_end = timestamp_end,
         timestamp_seconds = to_seconds(timestamp),
       })
     end
   end
+  return results
+end
 
-  local timestamps = unique_sorted_timestamps(results)
-  local oldest = timestamps[1].timestamp
-  local newest = timestamps[#timestamps].timestamp
+local function create_highlight_groups(timestamps)
+  local unique_sorted_timestamps = sort_and_filter_for_unique(timestamps)
 
-  -- build indexable timestamps table
-  -- generate mapped values [0..255]
-  -- create highlight groups
-  local indexable_timestamps = {}
-  for i, v in ipairs(timestamps) do
-    local mapped_value = math.floor((v.timestamp - oldest) * (255) / (newest - oldest))
+
+  local oldest = unique_sorted_timestamps[1].timestamp
+  local newest = unique_sorted_timestamps[#unique_sorted_timestamps].timestamp
+
+  local mapper = require("fugitive-blame-heatmap.mappings.linear").new(oldest, newest, 0, 255)
+
+  local result = {}
+  for i, v in ipairs(unique_sorted_timestamps) do
+    local mapped_value = mapper:map(v.timestamp)
     local hlgroup = string.format("fugitiveBlameHeatmap%04x", i)
-    indexable_timestamps[v.timestamp] = {mapped_value = mapped_value, hlgroup = hlgroup}
+    result[v.timestamp] = { mapped_value = mapped_value, hlgroup = hlgroup }
     vim.cmd(string.format("highlight %s guifg=#ffffff guibg=#%02x0000", hlgroup, mapped_value))
   end
+  return result
+end
 
-  for _, r in ipairs(results) do
+local function highlight_timestamps()
+  local bufnr = vim.api.nvim_get_current_buf()
+  vim.api.nvim_buf_clear_namespace(bufnr, hl_ns, 0, -1)
+
+  local buffer_contents = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local timestamps_in_buffer = find_timestamps(buffer_contents)
+  local highlight_groups_for_timestamps = create_highlight_groups(timestamps_in_buffer)
+
+  -- set the generated highlight groups for the located timestamps
+  for _, found_timestamp in ipairs(timestamps_in_buffer) do
     vim.api.nvim_buf_add_highlight(
       bufnr,
       hl_ns,
-      indexable_timestamps[r.timestamp_seconds].hlgroup,
-      r.line_nr,
-      r.timestamp_start-1,
-      r.timestamp_end
+      highlight_groups_for_timestamps[found_timestamp.timestamp_seconds].hlgroup,
+      found_timestamp.line_nr,
+      found_timestamp.timestamp_start,
+      found_timestamp.timestamp_end
     )
   end
-
 end
 
 return {
