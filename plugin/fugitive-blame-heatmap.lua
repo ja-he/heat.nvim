@@ -11,7 +11,7 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 vim.api.nvim_create_user_command(
-  "FugitiveBlameHeatmap",
+  "FugitiveBlameRegenerateHeatmap",
   require('fugitive-blame-heatmap').get_timestamps_in_blame,
   {
   }
