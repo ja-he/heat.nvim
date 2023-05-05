@@ -16,10 +16,13 @@ local timestamp_regex = "(%d%d%d%d)%-(%d%d)%-(%d%d) (%d%d):(%d%d):(%d%d) ([+-]%d
 
 local default_config = {
   colors = {
-    [1] = { value = 0.0, color = { 1.0, 1.0, 1.0 } }, -- white
+    [1] = { value = 0.0, color = { 0.0, 0.0, 0.0 } }, -- black
     [2] = { value = 1.0, color = { 1.0, 0.0, 0.0 } }, -- red
   },
 }
+if vim.o.background == "light" then
+  default_config.colors[1].color = { 1.0, 1.0, 1.0 } -- white
+end
 
 function M.setup(user_config)
   user_config = user_config or {}
