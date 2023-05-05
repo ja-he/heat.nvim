@@ -26,8 +26,18 @@ local function rgb_from_hex_string(hex)
   return { r, g, b }
 end
 
+local function rgb_get_textcolor(color)
+  local r, g, b = unpack(color)
+  if r + g + b > 1.5 then
+    return { 0.0, 0.0, 0.0 } -- black
+  else
+    return { 1.0, 1.0, 1.0 } -- white
+  end
+end
+
 return {
   rgb_lerp = rgb_lerp,
   rgb_to_hex_string = rgb_to_hex_string,
   rgb_from_hex_string = rgb_from_hex_string,
+  rgb_get_textcolor = rgb_get_textcolor,
 }

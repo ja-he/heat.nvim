@@ -122,7 +122,7 @@ local function create_highlight_groups(timestamps)
       error("unable to assign color_for_value")
     end
     return {
-      fg_color = "#ffffff",
+      fg_color = colors.rgb_to_hex_string(colors.rgb_get_textcolor(color_for_value)),
       bg_color = colors.rgb_to_hex_string(color_for_value),
     }
   end
