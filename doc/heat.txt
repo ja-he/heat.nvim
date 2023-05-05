@@ -1,0 +1,10 @@
+*heat.nvim* highlights hotness,
+for instance in git-blame views, showing which changes are most recent.
+
+Author: Jan Hensel <github.com/ja-he>
+
+QUICKSTART                                      *heat.nvim*
+
+WIP / TODO
+
+ vim:tw=78:ts=8:ft=help:norl:

@@ -9,14 +9,14 @@ vim.api.nvim_create_autocmd('FileType', {
   group = augroup,
   pattern = 'fugitiveblame',
   callback = function()
-    require('fugitive-blame-heatmap').highlight_timestamps()
+    require('heat').highlight_timestamps()
   end,
 })
 
 -- add user commands
 vim.api.nvim_create_user_command(
-  "FugitiveBlameRegenerateHeatmap",
-  require('fugitive-blame-heatmap').highlight_timestamps,
+  "HeatHighlightTimestamps",
+  require('heat').highlight_timestamps,
   {
   }
 )

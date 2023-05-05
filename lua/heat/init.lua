@@ -3,14 +3,14 @@
 
 -- core plugin logic
 
-local colors = require("fugitive-blame-heatmap.colors")
-local util = require("fugitive-blame-heatmap.util")
+local colors = require("heat.colors")
+local util = require("heat.util")
 
 local M = {
   config = {},
 }
 
-local hl_ns = vim.api.nvim_create_namespace('fugitive-blame-heatmap')
+local hl_ns = vim.api.nvim_create_namespace('heat')
 
 local timestamp_regex = "(%d%d%d%d)%-(%d%d)%-(%d%d) (%d%d):(%d%d):(%d%d) ([+-]%d%d%d%d)"
 
@@ -106,7 +106,7 @@ local function create_highlight_groups(timestamps)
   local oldest = unique_sorted_timestamps[1].timestamp
   local newest = unique_sorted_timestamps[#unique_sorted_timestamps].timestamp
 
-  local mapper = require("fugitive-blame-heatmap.mappings.linear").new(oldest, newest, 0.0, 1.0)
+  local mapper = require("heat.mappings.linear").new(oldest, newest, 0.0, 1.0)
   local map_to_hexrgb = function(mapped_value)
     local range = util.find_palette_range(M.config.colors, mapped_value)
     local color_for_value
@@ -133,7 +133,7 @@ local function create_highlight_groups(timestamps)
   local result = {}
   for i, v in ipairs(unique_sorted_timestamps) do
     local mapped_value = mapper:map(v.timestamp)
-    local hlgroup = string.format("fugitiveBlameHeatmap%04x", i)
+    local hlgroup = string.format("heatHotnessValue%04x", i)
     result[v.timestamp] = { mapped_value = mapped_value, hlgroup = hlgroup }
     local mapped_colors = map_to_hexrgb(mapped_value)
     vim.cmd(string.format("highlight %s guifg=%s guibg=%s", hlgroup, mapped_colors.fg_color, mapped_colors.bg_color))
