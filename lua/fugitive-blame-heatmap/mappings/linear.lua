@@ -14,13 +14,10 @@ function Mapper.new(min_input, max_input, min_output, max_output)
 end
 
 function Mapper:map(value)
-  return math.floor(
-    (
-      (value - self.min_input) * (self.max_output - self.min_output)
-      / (self.max_input - self.min_input)
-    )
-    + self.min_output
-  )
+  return (
+    (value - self.min_input) * (self.max_output - self.min_output)
+    / (self.max_input - self.min_input)
+  ) + self.min_output
 end
 
 return Mapper

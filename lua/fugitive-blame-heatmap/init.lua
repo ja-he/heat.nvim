@@ -3,9 +3,28 @@
 
 -- core plugin logic
 
+local colors = require("fugitive-blame-heatmap.colors")
+local util = require("fugitive-blame-heatmap.util")
+
+local M = {
+  config = {},
+}
+
 local hl_ns = vim.api.nvim_create_namespace('fugitive-blame-heatmap')
 
 local timestamp_regex = "(%d%d%d%d)%-(%d%d)%-(%d%d) (%d%d):(%d%d):(%d%d) ([+-]%d%d%d%d)"
+
+local default_config = {
+  colors = {
+    [1] = { value = 0.0, color = { 0.0, 0.0, 0.3 } },  -- #00004c
+    [2] = { value = 1.0, color = { 1.0, 0.0, 0.0 } },  -- #ff0000
+  },
+}
+
+function M.setup(user_config)
+  user_config = user_config or {}
+  M.config = setmetatable(user_config, { __index = default_config })
+end
 
 local function to_seconds(timestamp_str)
   local year, month, day, hour, minute, second, timezone = timestamp_str:match(timestamp_regex)
@@ -57,7 +76,7 @@ local function find_timestamps(buffer_contents)
     if timestamp_start then
       table.insert(results, {
         line_nr = line_nr - 1,
-        timestamp_start = timestamp_start-1,
+        timestamp_start = timestamp_start - 1,
         timestamp_end = timestamp_end,
         timestamp_seconds = to_seconds(timestamp),
       })
@@ -73,11 +92,27 @@ local function create_highlight_groups(timestamps)
   local oldest = unique_sorted_timestamps[1].timestamp
   local newest = unique_sorted_timestamps[#unique_sorted_timestamps].timestamp
 
-  local mapper = require("fugitive-blame-heatmap.mappings.linear").new(oldest, newest, 0, 255)
+  local mapper = require("fugitive-blame-heatmap.mappings.linear").new(oldest, newest, 0.0, 1.0)
   local map_to_hexrgb = function(mapped_value)
+    local range = util.find_palette_range(M.config.colors, mapped_value)
+    local color_for_value
+    local range_lb, range_ub = unpack(range)
+    if range_lb == nil then
+      error("unable to get range_lb for value, expected 1 or 2 values, got none")
+    end
+    if range_ub == nil then
+      color_for_value = range_lb.color
+    else
+      local range_width = range_ub.value - range_lb.value
+      local normalized_mapped_value = (mapped_value - range_lb.value) / range_width
+      color_for_value = colors.rgb_lerp(range_lb.color, range_ub.color, normalized_mapped_value)
+    end
+    if color_for_value == nil then
+      error("unable to assign color_for_value")
+    end
     return {
       fg_color = "#ffffff",
-      bg_color = string.format("#%02x0000", mapped_value),
+      bg_color = colors.rgb_to_hex_string(color_for_value),
     }
   end
 
@@ -92,7 +127,7 @@ local function create_highlight_groups(timestamps)
   return result
 end
 
-local function highlight_timestamps()
+function M.highlight_timestamps()
   local bufnr = vim.api.nvim_get_current_buf()
   vim.api.nvim_buf_clear_namespace(bufnr, hl_ns, 0, -1)
 
@@ -113,6 +148,4 @@ local function highlight_timestamps()
   end
 end
 
-return {
-  highlight_timestamps = highlight_timestamps,
-}
+return M
