@@ -18,7 +18,16 @@ local function rgb_to_hex_string(color)
   return string.format("#%02x%02x%02x", math.floor(r * 255), math.floor(g * 255), math.floor(b * 255))
 end
 
+local function rgb_from_hex_string(hex)
+  local r = tonumber(hex:sub(2, 3), 16) / 255
+  local g = tonumber(hex:sub(4, 5), 16) / 255
+  local b = tonumber(hex:sub(6, 7), 16) / 255
+
+  return { r, g, b }
+end
+
 return {
   rgb_lerp = rgb_lerp,
   rgb_to_hex_string = rgb_to_hex_string,
+  rgb_from_hex_string = rgb_from_hex_string,
 }

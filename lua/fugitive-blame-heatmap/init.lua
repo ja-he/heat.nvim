@@ -16,13 +16,24 @@ local timestamp_regex = "(%d%d%d%d)%-(%d%d)%-(%d%d) (%d%d):(%d%d):(%d%d) ([+-]%d
 
 local default_config = {
   colors = {
-    [1] = { value = 0.0, color = { 0.0, 0.0, 0.3 } },  -- #00004c
-    [2] = { value = 1.0, color = { 1.0, 0.0, 0.0 } },  -- #ff0000
+    [1] = { value = 0.0, color = { 1.0, 1.0, 1.0 } }, -- white
+    [2] = { value = 1.0, color = { 1.0, 0.0, 0.0 } }, -- red
   },
 }
 
 function M.setup(user_config)
   user_config = user_config or {}
+  if user_config.colors ~= nil then
+    for i, color_info in ipairs(user_config.colors) do
+      if type(color_info.color) == "string" then
+        user_config.colors[i].color = colors.rgb_from_hex_string(color_info.color)
+      elseif type(color_info.color) == "table" then
+        user_config.colors[i].color = color_info.color
+      else
+        error("Invalid input for colors entry: must be a hex string or RGB tuple.")
+      end
+    end
+  end
   M.config = setmetatable(user_config, { __index = default_config })
 end
 
