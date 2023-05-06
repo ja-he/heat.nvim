@@ -1,23 +1,17 @@
 -- Copyright 2023 Jan Hensel
 -- SPDX-License-Identifier: MIT
 
-local Mapper = {}
-Mapper.__index = Mapper
+local function generate_mapping_fn(min_input, max_input, min_output, max_output)
+  -- TODO: bounds checking?
 
-function Mapper.new(min_input, max_input, min_output, max_output)
-  local self = setmetatable({}, Mapper)
-  self.min_input = min_input
-  self.max_input = max_input
-  self.min_output = min_output
-  self.max_output = max_output
-  return self
+  return function(value)
+    return (
+      (value - min_input) * (max_output - min_output)
+      / (max_input - min_input)
+    ) + min_output
+  end
 end
 
-function Mapper:map(value)
-  return (
-    (value - self.min_input) * (self.max_output - self.min_output)
-    / (self.max_input - self.min_input)
-  ) + self.min_output
-end
-
-return Mapper
+return {
+  generate_mapping_fn = generate_mapping_fn,
+}

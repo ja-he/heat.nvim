@@ -3,8 +3,114 @@ for instance in git-blame views, showing which changes are most recent.
 
 Author: Jan Hensel <github.com/ja-he>
 
-QUICKSTART                                      *heat.nvim*
+================================================================================
+INTRO                                                               *heat.intro*
 
-WIP / TODO
+There are two core ideas to the plugin:
+  1. offer a basic interface (see |heat.interface|) for highlighting "heat".
+     you just have to provide the places where you found something to
+     highlight and the "hotness" value you ascribe (e.g. places of git-diff
+     timestamps and the timestamps in seconds) and this will highlight the
+     data in a reasonable way.
+  2. offer some useful builtins (see |heat.builtins|) to leverage that
+     interface for the more common (simple) use cases; among others:
+     - attach to fugitive buffers and highlight timestamp recency
+     - that's it, for now 🙂 but I have some ideas...
+
+heat.setup({config})                                              *heat.setup()*
+    Sets up |heat.nvim|.
+
+    Parameters:
+        {config}   (table)  The config as a table;
+                            See the following for configuration details.
+
+    Valid keys for {config}:
+        {colors} (table)  A table mapping values to colors.
+                          (see also |heat.notes.color|)
+                          Examples:
+                              colors = {
+                                [1] = { value = 0.00, color = { 0 , 0 , 0  } },
+                                [2] = { value = 0.75, color = { .8, .8, .8 } }
+                                [3] = { value = 1.00, color = { 1 , 0 , 0  } },
+                              },
+                              colors = {
+                                [1] = { value = 0.00, color = "#000000" },
+                                [2] = { value = 0.25, color = "#792281" },
+                                [3] = { value = 0.50, color = "#bb3876" },
+                                [4] = { value = 0.75, color = "#f56b5b" },
+                                [5] = { value = 1.00, color = "#fbfbbf" },
+                              },
+                              ...
+
+================================================================================
+INTERFACE                                                       *heat.interface*
+
+heat.interface.highlight({data},                    *heat.interface.highlight()*
+                        ,{generate_mapping_fn}
+                        ,{palette}
+                        ,{highlight_namespace_name})
+    Highlights the given data by hotness (see {data} for how).
+
+    Parameters:  
+        {data}   (table)  The data to highlight as a set.
+                          Each entry has the following keys:
+                          - `buf_nr`: the buffer number
+                          - `line_nr`: the line number (first line is `0`)
+                          - `col_start`:
+                            the first column to highlight (first char is `0`)
+                          - `col_end`:
+                            the first column not to highlight
+                          - `value`:
+                            the value for the datum.
+                            use any numeric representation that captures the
+                            meaning of the datum; for example, for a
+                            timestamp, you could simply use the number of
+                            seconds (or milliseconds, ...).
+                            this will be mapped 
+        {generate_mapping_fn} (function)
+                          A generator function that will be used internally to
+                          generate the mapping function (which then maps
+                          values to the [0.0..1.0] range).
+                          Parameters:  
+                              {input_min} (number) will be generated
+                                                   internally from {data}
+                              {input_max} (number) will be generated      
+                                                   internally from {data} 
+        {palette} (table) A color palette mapping to value range [0.0..1.0].
+                          Example:
+                              {
+                                [1] = { value = 0.00, color = { 0 , 0 , 0  } },
+                                [2] = { value = 0.75, color = { .8, .8, .8 } }
+                                [3] = { value = 1.00, color = { 1 , 0 , 0  } },
+                              }
+                          (see also |heat.notes.color|)
+        {highlight_namespace_name} (string)
+                          A name for the highlight namespace used;
+                          also used to prefix highlight groups.
+
+================================================================================
+BUILTIN                                                           *heat.builtin*
+
+                                 *heat.builtin.highlight_timestamps_in_buffer()*
+highlight_timestamps_in_buffer({buf_nr})
+    Highlight timestamps in the given buffer.
+
+================================================================================
+NOTES                                                               *heat.notes*
+
+                                                              *heat.notes.color*
+    - Right now, heat uses only RGB colors; this should change to include HSL.
+
+    - Right now, heat interpolates between colors only linearly; this could
+      change.
+
+    - Right now, heat uses only the background for color and sets the
+      foreground to the complementary choice of black or white, depending on
+      how "light" the color is.
+      Especially this lightness-check is a bit hamfisted, as it only sums up
+      RGB values instead of using a more appropriate model.
+
+    - Through configuration of more specific color palettes, any path and
+      interpolation can, however, be approximated.
 
  vim:tw=78:ts=8:ft=help:norl:
