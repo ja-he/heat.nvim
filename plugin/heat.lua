@@ -9,7 +9,7 @@ vim.api.nvim_create_autocmd('FileType', {
   group = augroup,
   pattern = 'fugitiveblame',
   callback = function()
-    require('heat.builtin').highlight_timestamps_in_buffer(-1, require 'heat.init'.config.colors)
+    require('heat.builtin').highlight_timestamps_in_buffer(-1, require 'heat'.config.colors)
   end,
 })
 
