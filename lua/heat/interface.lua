@@ -12,7 +12,7 @@ local function create_highlight_groups(data, mapping_fn_creator, palette, highli
   local min = unique_sorted_data_by_value[1].value
   local max = unique_sorted_data_by_value[#unique_sorted_data_by_value].value
 
-  local mapping_fn = mapping_fn_creator(min, max, 0.0, 1.0)
+  local mapping_fn = mapping_fn_creator(min, max)
 
   local map_to_hexrgb = function(mapped_value)
     local range = util.find_palette_range(palette, mapped_value)

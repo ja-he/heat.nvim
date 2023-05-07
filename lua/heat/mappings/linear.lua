@@ -1,8 +1,11 @@
 -- Copyright 2023 Jan Hensel
 -- SPDX-License-Identifier: MIT
 
-local function generate_mapping_fn(min_input, max_input, min_output, max_output)
+local function generate_mapping_fn(min_input, max_input)
   -- TODO: bounds checking?
+
+  local min_output = 0.0
+  local max_output = 1.0
 
   return function(value)
     return (
