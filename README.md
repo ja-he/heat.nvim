@@ -1,3 +1,5 @@
+<img src="https://user-images.githubusercontent.com/63857598/236690397-377da5ff-1c62-4248-8194-b3af61dd2662.png" width=200px align=right title="heat.nvim Logo [font is YoungSerif licensed under SIL OFL 1.1]"></img>
+
 # heat.nvim
 
 #### Rough idea:
