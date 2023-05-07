@@ -37,7 +37,11 @@ local function highlight_timestamps_in_buffer(buf_nr, palette)
   local data = find_timestamps(buf_nr)
   local generate_mapping_fn = require 'heat.mappings.linear'.generate_mapping_fn
 
-  require 'heat.interface'.highlight(data, generate_mapping_fn, palette, 'heatTimestampsRecency')
+  local highlight_namespace_name = 'heatTimestampsRecency'
+  local hl_ns = vim.api.nvim_create_namespace(highlight_namespace_name)
+  vim.api.nvim_buf_clear_namespace(buf_nr, hl_ns, 0, -1)
+
+  require 'heat.interface'.highlight(data, generate_mapping_fn, palette, highlight_namespace_name)
 end
 
 return {
