@@ -27,6 +27,8 @@ heat.setup({config})                                              *heat.setup()*
     Valid keys for {config}:
         {colors} (table)  A table mapping values to colors.
                           (see also |heat.notes.color|)
+                          You can pass Hex-strings ("#RRGGBB") here, they will
+                          be converted; see example below.
                           Examples:
                               colors = {
                                 [1] = { value = 0.00, color = { 0 , 0 , 0  } },
