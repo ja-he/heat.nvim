@@ -76,9 +76,10 @@ heat.interface.highlight({data},                    *heat.interface.highlight()*
                           Parameters:  
                               {input_min} (number) will be generated
                                                    internally from {data}
-                              {input_max} (number) will be generated      
+                              {input_max} (number) will be generated
                                                    internally from {data} 
-        {palette} (table) A color palette mapping to value range [0.0..1.0].
+        {palette} (table)                                 *heat.datafmt.palette*
+                          A color palette mapping to value range [0.0..1.0].
                           Example:
                               {
                                 [1] = { value = 0.00, color = { 0 , 0 , 0  } },
@@ -94,8 +95,13 @@ heat.interface.highlight({data},                    *heat.interface.highlight()*
 BUILTIN                                                           *heat.builtin*
 
                                  *heat.builtin.highlight_timestamps_in_buffer()*
-highlight_timestamps_in_buffer({buf_nr})
+highlight_timestamps_in_buffer({buf_nr}, {palette})
     Highlight timestamps in the given buffer.
+
+    Parameters:  
+        {buf_nr} (number) The buffer number; `-1` for current.
+        {palette} (table) A color palette;
+                          see |heat.datafmt.palette| for specifics.
 
 ================================================================================
 NOTES                                                               *heat.notes*
