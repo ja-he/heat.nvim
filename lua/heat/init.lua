@@ -12,7 +12,7 @@ function M.setup(user_config)
   if user_config.colors ~= nil then
     for i, color_info in ipairs(user_config.colors) do
       if type(color_info.color) == "string" then
-        user_config.colors[i].color = require'heat.colors'.rgb_from_hex_string(color_info.color)
+        user_config.colors[i].color = require 'heat.colors'.rgb_from_hex_string(color_info.color)
       elseif type(color_info.color) == "table" then
         user_config.colors[i].color = color_info.color
       else
