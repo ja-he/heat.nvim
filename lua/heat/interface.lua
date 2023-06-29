@@ -7,7 +7,28 @@ local linear = require("heat.mappings.linear")
 local palettes = require("heat.palettes")
 
 local function create_highlight_groups(data, mapping_fn_creator, palette, highlight_namespace_name)
+  if #data == 0 then
+    print("WARNING: heat.interfaces.create_highlight_groups() was given empty data")
+    return {}
+  end
+
+
   local unique_sorted_data_by_value = util.sort_and_filter_for_unique_by_value(data)
+
+  -- handle the case that there is only one unique datum, which may occur
+  if #unique_sorted_data_by_value == 1 then
+    local hlgroup = string.format(highlight_namespace_name .. "0001")
+    local mapped_colors = {
+      fg_color = colors.rgb_to_hex_string(colors.rgb_get_textcolor(palette[#palette].color)),
+      bg_color = colors.rgb_to_hex_string(palette[#palette].color),
+    }
+    vim.cmd(string.format("highlight %s guifg=%s guibg=%s", hlgroup, mapped_colors.fg_color, mapped_colors.bg_color))
+    local results = {}
+    local v = unique_sorted_data_by_value[1].value
+    results[v] = { mapped_value = 1.0, hlgroup = hlgroup }
+    return results
+  end
+
 
   local min = unique_sorted_data_by_value[1].value
   local max = unique_sorted_data_by_value[#unique_sorted_data_by_value].value
