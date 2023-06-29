@@ -29,6 +29,26 @@ function M.setup(user_config)
   end
 
   M.config = setmetatable(user_config, { __index = default_config })
+
+  -- register for 'fugitiveblame'-FT buffers to generate the heatmap
+  local augroup = vim.api.nvim_create_augroup("fugitive-blame-heatmap", { clear = true })
+  vim.api.nvim_create_autocmd('FileType', {
+    group = augroup,
+    pattern = 'fugitiveblame',
+    callback = function()
+      require('heat.builtin').highlight_timestamps_in_buffer(-1, require 'heat'.config.colors)
+    end,
+  })
+
+  -- add user commands
+  vim.api.nvim_create_user_command(
+    "HeatHighlightTimestamps",
+    function()
+      require('heat.builtin').highlight_timestamps_in_buffer(-1, require 'heat'.config.colors)
+    end,
+    {
+    }
+  )
 end
 
 return M
